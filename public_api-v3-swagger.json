@@ -1,0 +1,982 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "version": "3.0",
+    "title": "agrilog REST API",
+    "description": "あぐりログAPIはあぐりログサービスを外部アプリケーションから利用する際のインターフェースとなります。"
+  },
+  "host": "api.itz.agrilog.jp",
+  "basePath": "/v3",
+  "tags": [
+    {
+      "name": "HouseInfo",
+      "description": "ユーザーが所有するハウス情報を出力します"
+    },
+    {
+      "name": "HouseEnv",
+      "description": "ハウスの環境値を出力します"
+    },
+    {
+      "name": "Comment",
+      "description": "コメントの取得、作成、編集、削除などを行います"
+    }
+  ],
+  "schemes": [
+    "https"
+  ],
+  "paths": {
+    "/user/house/{boxid}": {
+      "get": {
+        "tags": [
+          "HouseInfo"
+        ],
+        "description": "各ハウスのハウスID(id), ハウスオーナー(owner), ハウス名(name), 計測CH並び(chorder), 計測CH情報(chinfo)を出力します。",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "boxid",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "ハウスID"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "200 response",
+            "schema": {
+              "required": [
+                "house"
+              ],
+              "type": "object",
+              "properties": {
+                "house": {
+                  "type": "array",
+                  "items": {
+                    "required": [
+                      "id",
+                      "owner",
+                      "name",
+                      "chorder",
+                      "chinfo"
+                    ],
+                    "properties": {
+                      "id": {
+                        "type": "integer"
+                      },
+                      "owner": {
+                        "type": "boolean"
+                      },
+                      "name": {
+                        "type": "string"
+                      },
+                      "chorder": {
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        }
+                      },
+                      "chinfo": {
+                        "required": [
+                          "name",
+                          "unit",
+                          "sensor_type"
+                        ],
+                        "properties": {
+                          "name": {
+                            "required": [
+                              "chname"
+                            ],
+                            "properties": {
+                              "chname": {
+                                "type": "string"
+                              }
+                            }
+                          },
+                          "unit": {
+                            "required": [
+                              "chname"
+                            ],
+                            "properties": {
+                              "chname": {
+                                "type": "string"
+                              }
+                            }
+                          },
+                          "sensor_type": {
+                            "required": [
+                              "chname"
+                            ],
+                            "properties": {
+                              "chname": {
+                                "type": "integer"
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              },
+              "example": {
+                "house": [
+                  {
+                    "id": 12,
+                    "owner": true,
+                    "name": "housename",
+                    "chorder": [
+                      "ch23",
+                      "ch24",
+                      "ch25"
+                    ],
+                    "chinfo": {
+                      "name": {
+                        "ch23": "室温",
+                        "ch24": "湿度",
+                        "ch25": "CO2濃度"
+                      },
+                      "unit": {
+                        "ch23": "℃",
+                        "ch24": "%",
+                        "ch25": "ppm"
+                      },
+                      "sensor_type": {
+                        "ch23": 1,
+                        "ch24": 2,
+                        "ch25": 3
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "api_key": [],
+            "secret_key": []
+          }
+        ]
+      }
+    },
+    "/user/house/{boxid}/ownername": {
+      "get": {
+        "tags": [
+          "HouseInfo"
+        ],
+        "description": "ハウスオーナーの名前を出力します。",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "boxid",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "ハウスID"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "200 response",
+            "schema": {
+              "required": [
+                "houseid",
+                "ownername"
+              ],
+              "properties": {
+                "houseid": {
+                  "type": "integer"
+                },
+                "ownername": {
+                  "type": "string"
+                }
+              },
+              "example": {
+                "houseid": 12,
+                "ownername": "あぐりログデモ"
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "api_key": [],
+            "secret_key": []
+          }
+        ]
+      }
+    },
+    "/env/house/{boxid}/latest": {
+      "get": {
+        "tags": [
+          "HouseEnv"
+        ],
+        "description": "ハウス環境値の最新をハウス毎に取得します。",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "boxid",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "ハウスID"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "200 response",
+            "schema": {
+              "required": [
+                "house"
+              ],
+              "type": "object",
+              "properties": {
+                "house": {
+                  "type": "array",
+                  "items": {
+                    "required": [
+                      "id",
+                      "data"
+                    ],
+                    "properties": {
+                      "id": {
+                        "type": "integer"
+                      },
+                      "data": {
+                        "type": "array",
+                        "items": {
+                          "required": [
+                            "datetime",
+                            "avg_temperature",
+                            "chname"
+                          ],
+                          "properties": {
+                            "datetime": {
+                              "type": "string"
+                            },
+                            "avg_temperature": {
+                              "required": [
+                                "day",
+                                "night"
+                              ],
+                              "properties": {
+                                "day": {
+                                  "type": "number",
+                                  "format": "float"
+                                },
+                                "night": {
+                                  "type": "number",
+                                  "format": "float"
+                                }
+                              }
+                            },
+                            "chname": {
+                              "required": [
+                                "val",
+                                "diff"
+                              ],
+                              "properties": {
+                                "val": {
+                                  "type": "number",
+                                  "format": "float"
+                                },
+                                "diff": {
+                                  "type": "number",
+                                  "format": "float"
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              },
+              "example": {
+                "house": [
+                  {
+                    "id": 12,
+                    "data": [
+                      {
+                        "datetime": "2015-01-19 00:00:00",
+                        "avg_temperature": {
+                          "day": 23.2,
+                          "night": 14.5
+                        },
+                        "ch23": {
+                          "val": 15.3,
+                          "diff": 1.02
+                        },
+                        "ch24": {
+                          "val": 54.6,
+                          "diff": -5.4
+                        },
+                        "ch25": {
+                          "val": 441,
+                          "diff": 45
+                        }
+                      }
+                    ]
+                  }
+                ]
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "api_key": [],
+            "secret_key": []
+          }
+        ]
+      }
+    },
+    "/env/house/{boxid}/day/{year}/{month}/{date}": {
+      "get": {
+        "tags": [
+          "HouseEnv"
+        ],
+        "description": "ハウス毎に環境値の一日のデータを取得します。データの出力は時系列順となっており、時刻について一日の最初のデータが先頭、一日の最後のデータが最後尾となっています。返り値内の\\\"start\\\"と\\\"end\\\"は日時の検索条件を表します。",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "boxid",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "ハウスID"
+          },
+          {
+            "name": "year",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "対象年"
+          },
+          {
+            "name": "month",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "対象月"
+          },
+          {
+            "name": "date",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "対象日"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "200 response",
+            "schema": {
+              "required": [
+                "start",
+                "end",
+                "house"
+              ],
+              "type": "object",
+              "properties": {
+                "start": {
+                  "type": "string"
+                },
+                "end": {
+                  "type": "string"
+                },
+                "house": {
+                  "type": "array",
+                  "items": {
+                    "required": [
+                      "id",
+                      "data"
+                    ],
+                    "properties": {
+                      "id": {
+                        "type": "integer"
+                      },
+                      "data": {
+                        "type": "array",
+                        "items": {
+                          "required": [
+                            "datetime",
+                            "chname"
+                          ],
+                          "properties": {
+                            "datetime": {
+                              "type": "string"
+                            },
+                            "chname": {
+                              "required": [
+                                "chrrent"
+                              ],
+                              "properties": {
+                                "current": {
+                                  "type": "number",
+                                  "format": "float"
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              },
+              "example": {
+                "start": "2015-1-19 00:00:00",
+                "end": "2015-1-19 23:59:59",
+                "house": [
+                  {
+                    "id": 12,
+                    "data": [
+                      {
+                        "datetime": "2015-01-19 00:00:00",
+                        "ch23": {
+                          "current": 5.94
+                        },
+                        "ch24": {
+                          "current": 54.6
+                        },
+                        "ch25": {
+                          "current": 441
+                        }
+                      },
+                      {
+                        "datetime": "2015-01-19 00:05:01",
+                        "ch23": {
+                          "current": 14.6
+                        },
+                        "ch24": {
+                          "current": 75.4
+                        },
+                        "ch26": {
+                          "current": 353
+                        }
+                      }
+                    ]
+                  }
+                ]
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "api_key": [],
+            "secret_key": []
+          }
+        ]
+      }
+    },
+    "/env/house/{boxid}/week/{year}/{month}/{date}": {
+      "get": {
+        "tags": [
+          "HouseEnv"
+        ],
+        "description": "ハウス毎に環境値の1週間のデータを取得します。対象年月日から1週間遡った日を起点とし、毎正時の計測値を出力します。",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "boxid",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "ハウスID"
+          },
+          {
+            "name": "year",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "対象年"
+          },
+          {
+            "name": "month",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "対象月"
+          },
+          {
+            "name": "date",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "対象日"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "200 response",
+            "schema": {
+              "required": [
+                "start",
+                "end",
+                "house"
+              ],
+              "type": "object",
+              "properties": {
+                "start": {
+                  "type": "string"
+                },
+                "end": {
+                  "type": "string"
+                },
+                "house": {
+                  "type": "array",
+                  "items": {
+                    "required": [
+                      "id",
+                      "data"
+                    ],
+                    "properties": {
+                      "id": {
+                        "type": "integer"
+                      },
+                      "data": {
+                        "type": "array",
+                        "items": {
+                          "required": [
+                            "datetime",
+                            "chname"
+                          ],
+                          "properties": {
+                            "datetime": {
+                              "type": "string"
+                            },
+                            "chname": {
+                              "required": [
+                                "current"
+                              ],
+                              "properties": {
+                                "current": {
+                                  "type": "number",
+                                  "format": "float"
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              },
+              "example": {
+                "start": "2015-1-19 00:00:00",
+                "end": "2015-1-25 23:59:59",
+                "house": [
+                  {
+                    "id": 12,
+                    "data": [
+                      {
+                        "datetime": "2015-01-19 00:00:00",
+                        "ch23": {
+                          "current": 5.94
+                        },
+                        "ch24": {
+                          "current": 54.6
+                        },
+                        "ch25": {
+                          "current": 441
+                        }
+                      },
+                      {
+                        "datetime": "2015-01-19 01:00:01",
+                        "ch23": {
+                          "current": 14.6
+                        },
+                        "ch24": {
+                          "current": 75.4
+                        },
+                        "ch26": {
+                          "current": 353
+                        }
+                      }
+                    ]
+                  }
+                ]
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "api_key": [],
+            "secret_key": []
+          }
+        ]
+      }
+    },
+    "/env/house/{boxid}/month/{year}/{month}/{date}": {
+      "get": {
+        "tags": [
+          "HouseEnv"
+        ],
+        "description": "ハウス毎に環境値の一月のデータを取得します。対象年月日から1ヶ月遡った日を起点とし、データを出力します。環境値はmax(1日の最大値),min(1日の最小値),avg(1日の平均値)を出力します。",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "boxid",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "ハウスID"
+          },
+          {
+            "name": "year",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "対象年"
+          },
+          {
+            "name": "month",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "対象月"
+          },
+          {
+            "name": "date",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "対象日"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "200 response",
+            "schema": {
+              "required": [
+                "start",
+                "end",
+                "house"
+              ],
+              "type": "object",
+              "properties": {
+                "start": {
+                  "type": "string"
+                },
+                "end": {
+                  "type": "string"
+                },
+                "house": {
+                  "type": "array",
+                  "items": {
+                    "required": [
+                      "id",
+                      "data"
+                    ],
+                    "properties": {
+                      "id": {
+                        "type": "integer"
+                      },
+                      "data": {
+                        "type": "array",
+                        "items": {
+                          "required": [
+                            "datetime",
+                            "chname"
+                          ],
+                          "properties": {
+                            "datetime": {
+                              "type": "string"
+                            },
+                            "chname": {
+                              "required": [
+                                "max",
+                                "avg",
+                                "min"
+                              ],
+                              "properties": {
+                                "max": {
+                                  "type": "number",
+                                  "format": "float"
+                                },
+                                "avg": {
+                                  "type": "number",
+                                  "format": "float"
+                                },
+                                "min": {
+                                  "type": "number",
+                                  "format": "float"
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              },
+              "example": {
+                "start": "2015-1-19 00:00:00",
+                "end": "2015-2-18 23:59:59",
+                "house": [
+                  {
+                    "id": 12,
+                    "data": [
+                      {
+                        "datetime": "2015-01-19 00:00:00",
+                        "ch23": {
+                          "max": 15.3,
+                          "avg": 10.5,
+                          "min": 4.5
+                        },
+                        "ch24": {
+                          "max": 54.6,
+                          "avg": 50.2,
+                          "min": 43.3
+                        },
+                        "ch25": {
+                          "max": 1054,
+                          "avg": 420,
+                          "min": 246
+                        }
+                      },
+                      {
+                        "datetime": "2015-01-20 00:00:00",
+                        "ch23": {
+                          "max": 24.6,
+                          "avg": 20.5,
+                          "min": 15.2
+                        },
+                        "ch24": {
+                          "max": 98.2,
+                          "avg": 82.1,
+                          "min": 75.4
+                        },
+                        "ch25": {
+                          "max": 1542,
+                          "avg": 521,
+                          "min": 343
+                        }
+                      }
+                    ]
+                  }
+                ]
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "api_key": [],
+            "secret_key": []
+          }
+        ]
+      }
+    },
+    "/comments": {
+      "get": {
+        "tags": [
+          "Comment"
+        ],
+        "description": "コメントを取得します",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "boxid",
+            "in": "query",
+            "required": true,
+            "type": "integer",
+            "description": "BOXID (ハウスID)"
+          },
+          {
+            "name": "start",
+            "in": "query",
+            "required": true,
+            "type": "string",
+            "description": "取得開始時間\nOK: '2019-01-04 09:30:00'\nNG: '2019-1-4 9:30:00'"
+          },
+          {
+            "name": "end",
+            "in": "query",
+            "required": true,
+            "type": "string",
+            "description": "取得終了時間\nOK: '2019-01-04 09:30:00'\nNG: '2019-1-4 9:30:00'"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "200 response",
+            "schema": {
+              "example": {
+                "boxid": 12,
+                "start": "2019-01-04 12:30:00",
+                "end"  : "2019-01-04 23:59:59",
+                "comments": [
+                  {
+                    "datetime" : "2019-01-04 13:00:00",
+                    "comment"  : "テストコメント1"
+                  },
+                  {
+                    "datetime" : "2019-01-04 18:00:00",
+                    "comment"  : "テストコメント2"
+                  }
+                ]
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Comment"
+        ],
+        "description": "コメントを作成します\n※日時は0埋めで入力してください\nOK: '2019-01-04 09:30:00'\nNG: '2019-1-4 9:30:00'",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "required": true,
+            "schema": {
+              "example": {
+                "boxid": 12,
+                "comments": [
+                  {
+                    "datetime": "2018-12-20 12:05:00",
+                    "comment":"テスト"
+                  }
+                ]
+              }
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "201 response",
+            "schema": {
+              "example": {
+                "boxid": 12,
+                "comments": [
+                  {
+                    "datetime": "2018-12-20 12:05:00",
+                    "comment":"テスト"
+                  }
+                ]
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "Comment"
+        ],
+        "description": "コメントを編集します\n※日時は0埋めで入力してください\nOK: '2019-01-04 09:30:00'\nNG: '2019-1-4 9:30:00'",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "required": true,
+            "schema": {
+              "example": {
+                "boxid": 12,
+                "comments": [
+                  {
+                    "datetime": "2018-12-20 12:05:00",
+                    "oldcomment":"テスト編集前",
+                    "newcomment":"テスト編集後"
+                  }
+                ]
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "200 response",
+            "schema": {
+              "example": {
+                "boxid": 12,
+                "comments": [
+                  {
+                    "datetime": "2018-12-20 12:05:00",
+                    "comment":"テスト編集後"
+                  }
+                ]
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Comment"
+        ],
+        "description": "コメントを削除します\n※日時は0埋めで入力してください\nOK: '2019-01-04 09:30:00'\nNG: '2019-1-4 9:30:00'",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "required": true,
+            "schema": {
+              "example": {
+                "boxid": 12,
+                "comments": [
+                  {
+                    "datetime": "2018-12-20 12:05:00",
+                    "comment":"テスト削除"
+                  }
+                ]
+              }
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "204 response",
+            "schema": {
+              "example": "None"
+            }
+          }
+        }
+      }
+    }
+  },
+  "securityDefinitions": {
+    "api_key": {
+      "type": "apiKey",
+      "name": "x-api-key",
+      "in": "header"
+    },
+    "secret_key": {
+      "type": "apiKey",
+      "name": "x-secret-key",
+      "in": "header"
+    }
+  }
+}
